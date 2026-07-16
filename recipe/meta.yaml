@@ -2,32 +2,30 @@
 {% set version = "0.6.1" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/janitor_rs-{{ version }}.tar.gz
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_')}}-{{ version }}.tar.gz
   sha256: 54d4f4103a484b1e9c070214a4da2adaee781f02ed30a3895ccf6ef4e9ed2c76
 
 build:
+  number: 0
   script:
     - {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
     - cargo-bundle-licenses --format yaml --output THIRDPARTY.yml
-  number: 0
+  skip: true  # [py<38]
 
 requirements:
   build:
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - maturin >=1.9,<2.0                     # [build_platform != target_platform]
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('rust') }}
-    - {{ stdlib('c') }}
     - cargo-bundle-licenses
   host:
+    - pip
     - python
     - maturin >=1.9,<2.0
-    - pip
   run:
     - python
 
@@ -46,6 +44,11 @@ about:
   license_file:
     - LICENSE
     - THIRDPARTY.yml
+  license_family: MIT
+  description: Improve perf for pyjanitor functions with Rust
+  doc_url: https://github.com/pyjanitor-devs/janitor-rs
+  dev_url: https://github.com/pyjanitor-devs/janitor-rs
+
 
 extra:
   recipe-maintainers:
